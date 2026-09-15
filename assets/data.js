@@ -117,14 +117,14 @@ const ACTIVITY_KEY = "vrek_adamawa_activity_v1";
  * results" (Admin only) clears it back to true zero.
  */
 const DEMO_RESULTS = {
-  "Demsa": { apc: 9500,  adc: 8800,  pdp: 1800, lp: 1200, sdp: 800, ypp: 250, nnpp: 700, apm: 900 },
-  "Fufure": { apc: 6200,  adc: 5400,  pdp: 1300, lp: 700,  sdp: 450, ypp: 150, nnpp: 400, apm: 500 },
-  "Ganye": { apc: 10500, adc: 11800, pdp: 2200, lp: 900,  sdp: 600, ypp: 200, nnpp: 600, apm: 650 },
-  "Girei": { apc: 13500, adc: 12800, pdp: 2800, lp: 1200, sdp: 800, ypp: 250, nnpp: 700, apm: 900 },
-  "Gombi": { apc: 8600,  adc: 7200,  pdp: 1900, lp: 800,  sdp: 500, ypp: 180, nnpp: 500, apm: 600 },
-  "Guyuk": { apc: 6100,  adc: 6800,  pdp: 1400, lp: 500,  sdp: 300, ypp: 100, nnpp: 200, apm: 350 },
-  "Hong": { apc: 9800,  adc: 8100,  pdp: 1900, lp: 800,  sdp: 500, ypp: 150, nnpp: 400, apm: 600 },
-  "Jada": { apc: 7200,  adc: 7600,  pdp: 1400, lp: 500,  sdp: 350, ypp: 120, nnpp: 300, apm: 380 },
+  "Demsa": { apc: 10300,  adc: 8000,  pdp: 1800, lp: 1200, sdp: 800, ypp: 250, nnpp: 700, apm: 900 },
+  "Fufure": { apc: 6600,  adc: 5000,  pdp: 1300, lp: 700,  sdp: 450, ypp: 150, nnpp: 400, apm: 500 },
+  "Ganye": { apc: 11300, adc: 11000, pdp: 2200, lp: 900,  sdp: 600, ypp: 200, nnpp: 600, apm: 650 },
+  "Girei": { apc: 15500, adc: 10800, pdp: 2800, lp: 1200, sdp: 800, ypp: 250, nnpp: 700, apm: 900 },
+  "Gombi": { apc: 8800,  adc: 7000,  pdp: 1900, lp: 800,  sdp: 500, ypp: 180, nnpp: 500, apm: 600 },
+  "Guyuk": { apc: 6900,  adc: 6000,  pdp: 1400, lp: 500,  sdp: 300, ypp: 100, nnpp: 200, apm: 350 },
+  "Hong": { apc: 9900,  adc: 8000,  pdp: 1900, lp: 800,  sdp: 500, ypp: 150, nnpp: 400, apm: 600 },
+  "Jada": { apc: 7800,  adc: 7000,  pdp: 1400, lp: 500,  sdp: 350, ypp: 120, nnpp: 300, apm: 380 },
   "Lamurde": { apc: 5400,  adc: 4900,  pdp: 1000, lp: 500,  sdp: 300, ypp: 100, nnpp: 200, apm: 350 },
   "Madagali": { apc: 6900,  adc: 6500,  pdp: 1600, lp: 700,  sdp: 450, ypp: 120, nnpp: 300, apm: 500 },
   "Maiha": { apc: 5900,  adc: 5400,  pdp: 1400, lp: 500,  sdp: 350, ypp: 120, nnpp: 300, apm: 380 },

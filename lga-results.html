@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LGA Results — Adamawa VREK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <strong>Adamawa VREK</strong>
+    <span>Vote Reconciliation — Adamawa State</span>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="state-results.html">State results</a>
+    <a href="lga-results.html" class="active">LGA results</a>
+    <a href="charts.html">Charts</a>
+    <a href="progress.html">Collation progress</a>
+  </nav>
+</div>
+
+<div class="disclaimer">
+  Drill into a single Local Government Area. Unreported LGAs show zero votes for every candidate.
+</div>
+
+<main>
+  <div class="section">
+    <h1>Results by LGA</h1>
+    <p class="lead">Choose one of Adamawa's 21 Local Government Areas to see its reported figures.</p>
+    <div class="field" style="max-width:320px;">
+      <label for="lga-select">Local Government Area</label>
+      <select id="lga-select"></select>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2 id="lga-heading">—</h2>
+      <small id="lga-status"></small>
+    </div>
+    <div id="lga-rows"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+  const select = document.getElementById("lga-select");
+  LGAS.forEach(function (lga) {
+    const opt = document.createElement("option");
+    opt.value = lga;
+    opt.textContent = lga;
+    select.appendChild(opt);
+  });
+
+  function render() {
+    const lga = select.value;
+    const results = getResults();
+    const entry = results[lga];
+
+    document.getElementById("lga-heading").textContent = lga;
+    document.getElementById("lga-status").textContent = entry.reported
+      ? "Reported " + new Date(entry.updatedAt).toLocaleString()
+      : "Not yet reported";
+
+    const total = CANDIDATES.reduce(function (sum, c) { return sum + (entry.votes[c.id] || 0); }, 0);
+    const rows = CANDIDATES
+      .map(function (c) { return Object.assign({}, c, { votes: entry.votes[c.id] || 0 }); })
+      .sort(function (a, b) { return b.votes - a.votes; });
+
+    const container = document.getElementById("lga-rows");
+    container.innerHTML = "";
+    rows.forEach(function (c) {
+      const pct = total > 0 ? (c.votes / total) * 100 : 0;
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML =
+        '<div><span class="candidate-name">' + c.name + '</span>' +
+        '<span class="party-pill">' + c.party + '</span></div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+        '<div class="votes">' + c.votes.toLocaleString() + ' votes</div>' +
+        '<div class="pct">' + pct.toFixed(1) + '%</div>';
+      container.appendChild(row);
+    });
+  }
+
+  select.addEventListener("change", render);
+  render();
+</script>
+</body>
+</html>

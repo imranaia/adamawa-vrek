@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Adamawa VREK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <strong>Adamawa VREK</strong>
+    <span>Vote Reconciliation — Adamawa State</span>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="state-results.html">State results</a>
+    <a href="lga-results.html">LGA results</a>
+    <a href="charts.html">Charts</a>
+    <a href="progress.html">Collation progress</a>
+  </nav>
+  <div class="session">
+    <span id="session-label"></span>
+    <button id="logout-btn">Log out</button>
+  </div>
+</div>
+
+<div class="disclaimer">
+  Figures below come only from results entered on this device. Nothing here is an official INEC figure.
+</div>
+
+<main>
+  <div class="section">
+    <h1>Dashboard</h1>
+    <p class="lead">Live overview of statewide standings and collation progress, computed from whatever LGA results have been entered so far.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-label">LGAs reported</span>
+      <span class="stat-value mono" id="stat-reported">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Total votes counted</span>
+      <span class="stat-value mono" id="stat-total">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Leading candidate</span>
+      <span class="stat-value" id="stat-leader">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Lead margin</span>
+      <span class="stat-value mono" id="stat-margin">—</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Current statewide standings</h2>
+      <small><a href="state-results.html">Enter or edit results →</a></small>
+    </div>
+    <div id="standings-list"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
+</footer>
+
+<script src="assets/auth.js"></script>
+<script src="assets/data.js"></script>
+<script>
+  requireLogin();
+
+  document.getElementById("session-label").textContent = "Signed in as admin";
+  document.getElementById("logout-btn").addEventListener("click", function () {
+    logout();
+    window.location.href = "index.html";
+  });
+
+  const data = computeStandings();
+  document.getElementById("stat-reported").textContent = data.reportedCount + " / " + data.totalLgas;
+  document.getElementById("stat-total").textContent = data.grandTotal.toLocaleString();
+
+  const leader = data.standings[0];
+  const runnerUp = data.standings[1];
+  if (data.grandTotal > 0) {
+    document.getElementById("stat-leader").textContent = leader.name + " (" + leader.party + ")";
+    document.getElementById("stat-margin").textContent = (leader.votes - runnerUp.votes).toLocaleString() + " votes";
+  } else {
+    document.getElementById("stat-leader").textContent = "No results yet";
+    document.getElementById("stat-margin").textContent = "—";
+  }
+
+  const list = document.getElementById("standings-list");
+  data.standings.forEach(function (c, i) {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML =
+      '<div><span class="candidate-name">' + (i + 1) + '. ' + c.name + '</span>' +
+      '<span class="party-pill">' + c.party + '</span></div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + c.pct.toFixed(1) + '%"></div></div>' +
+      '<div class="votes">' + c.votes.toLocaleString() + ' votes</div>' +
+      '<div class="pct">' + c.pct.toFixed(1) + '%</div>';
+    list.appendChild(row);
+  });
+</script>
+</body>
+</html>

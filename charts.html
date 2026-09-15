@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charts — Adamawa VREK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  #chart-wrap { overflow-x: auto; }
+  #chart { display: block; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <strong>Adamawa VREK</strong>
+    <span>Vote Reconciliation — Adamawa State</span>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="state-results.html">State results</a>
+    <a href="lga-results.html">LGA results</a>
+    <a href="charts.html" class="active">Charts</a>
+    <a href="progress.html">Collation progress</a>
+  </nav>
+</div>
+
+<div class="disclaimer">
+  Chart reflects only results entered on this device. It will show all zeros until real figures are entered.
+</div>
+
+<main>
+  <div class="section">
+    <h1>Statewide vote share</h1>
+    <p class="lead">Drawn directly from the same totals shown on the dashboard and state results page — nothing here is a separate dataset.</p>
+  </div>
+
+  <div class="section" id="chart-wrap">
+    <canvas id="chart" width="900" height="420"></canvas>
+    <p id="empty-note" class="lead" style="display:none;">No votes have been entered yet. Enter results on the <a href="state-results.html">state results page</a> to see the chart populate.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+  const data = computeStandings();
+  const canvas = document.getElementById("chart");
+  const ctx = canvas.getContext("2d");
+
+  const inkColor = "#1b2330";
+  const dimColor = "#5b6572";
+  const gridColor = "#d7dce2";
+  const barColor = "#1e5c8a";
+
+  if (data.grandTotal === 0) {
+    document.getElementById("empty-note").style.display = "block";
+  }
+
+  const maxPct = Math.max(10, ...data.standings.map(function (c) { return c.pct; }));
+  const padding = { top: 30, right: 30, bottom: 90, left: 60 };
+  const chartW = canvas.width - padding.left - padding.right;
+  const chartH = canvas.height - padding.top - padding.bottom;
+  const barGap = 24;
+  const barWidth = (chartW - barGap * (data.standings.length - 1)) / data.standings.length;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // gridlines + y-axis labels (0/25/50/75/100 scaled to maxPct)
+  ctx.strokeStyle = gridColor;
+  ctx.fillStyle = dimColor;
+  ctx.font = "12px 'IBM Plex Mono', monospace";
+  ctx.textAlign = "right";
+  const ticks = 5;
+  for (let i = 0; i <= ticks; i++) {
+    const val = (maxPct / ticks) * i;
+    const y = padding.top + chartH - (val / maxPct) * chartH;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(padding.left + chartW, y);
+    ctx.stroke();
+    ctx.fillText(val.toFixed(0) + "%", padding.left - 10, y + 4);
+  }
+
+  // bars
+  data.standings.forEach(function (c, i) {
+    const x = padding.left + i * (barWidth + barGap);
+    const barH = (c.pct / maxPct) * chartH;
+    const y = padding.top + chartH - barH;
+
+    ctx.fillStyle = barColor;
+    ctx.fillRect(x, y, barWidth, barH);
+
+    ctx.fillStyle = inkColor;
+    ctx.font = "600 13px 'IBM Plex Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(c.pct.toFixed(1) + "%", x + barWidth / 2, y - 8);
+
+    ctx.font = "600 13px 'IBM Plex Sans', sans-serif";
+    ctx.fillText(c.party, x + barWidth / 2, padding.top + chartH + 20);
+
+    ctx.font = "12px 'IBM Plex Sans', sans-serif";
+    ctx.fillStyle = dimColor;
+    wrapCenteredText(ctx, c.name, x + barWidth / 2, padding.top + chartH + 38, barWidth + barGap, 14);
+  });
+
+  function wrapCenteredText(ctx, text, cx, y, maxWidth, lineHeight) {
+    const words = text.split(" ");
+    let line = "";
+    const lines = [];
+    words.forEach(function (word) {
+      const test = line ? line + " " + word : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    lines.forEach(function (l, i) {
+      ctx.fillText(l, cx, y + i * lineHeight);
+    });
+  }
+</script>
+</body>
+</html>

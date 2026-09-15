@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>adamawa-vrek — Adamawa Vote Reconciliation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <strong>Adamawa VREK</strong>
+    <span>Vote Reconciliation — Adamawa State</span>
+  </div>
+  <nav>
+    <a href="index.html" class="active">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="state-results.html">State results</a>
+    <a href="lga-results.html">LGA results</a>
+    <a href="charts.html">Charts</a>
+    <a href="progress.html">Collation progress</a>
+  </nav>
+  <div class="session">
+    <a href="admin-login.html" style="color:#d9e6f0;">Admin login</a>
+  </div>
+</div>
+
+<div class="disclaimer">
+  This site tracks the 2027 Adamawa State governorship race. No election has been held yet — every figure here is zero until an authorized user enters real, sourced results. This is not an official INEC source.
+</div>
+
+<main>
+  <section class="section">
+    <h1>Adamawa State Governorship, 2027</h1>
+    <p class="lead">A collation dashboard for tracking results across Adamawa's 21 Local Government Areas as they are reported. Candidate data reflects publicly confirmed primary outcomes as of September 2026; parties without a confirmed nominee are marked pending.</p>
+  </section>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-label">LGAs</span>
+      <span class="stat-value mono">21</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Confirmed candidates</span>
+      <span class="stat-value mono" id="confirmed-count">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">LGAs reported</span>
+      <span class="stat-value mono" id="reported-count">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Status</span>
+      <span class="stat-value">Pre-election</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Candidates</h2>
+      <small>Sourced from public primary results, Sept 2026</small>
+    </div>
+    <div id="candidate-list"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Where to go</h2>
+    </div>
+    <ul style="margin:0; padding-left: 1.2rem; color: var(--ink-dim); line-height: 1.9;">
+      <li><a href="dashboard.html">Dashboard</a> — overview once logged in as an admin</li>
+      <li><a href="state-results.html">State results</a> — statewide standings and vote entry</li>
+      <li><a href="lga-results.html">LGA results</a> — drill into a single Local Government Area</li>
+      <li><a href="charts.html">Charts</a> — visual breakdown of the current standings</li>
+      <li><a href="progress.html">Collation progress</a> — which of the 21 LGAs have reported</li>
+    </ul>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+  document.getElementById("confirmed-count").textContent =
+    CANDIDATES.filter(function (c) { return c.status === "confirmed"; }).length + " / " + CANDIDATES.length;
+
+  const s = computeStandings();
+  document.getElementById("reported-count").textContent = s.reportedCount + " / " + s.totalLgas;
+
+  const list = document.getElementById("candidate-list");
+  CANDIDATES.forEach(function (c) {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML =
+      '<div><span class="candidate-name">' + c.name + '</span>' +
+      '<span class="party-pill">' + c.party + '</span>' +
+      (c.status === "pending" ? '<span class="pending-tag">PENDING</span>' : '') +
+      '</div>' +
+      '<div style="color:var(--ink-faint); font-size:0.82rem;">' + c.partyFull + (c.runningMate ? ' &middot; running mate: ' + c.runningMate : '') + '</div>' +
+      '<div></div><div></div>';
+    list.appendChild(row);
+  });
+</script>
+</body>
+</html>

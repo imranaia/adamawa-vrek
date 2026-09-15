@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collation Progress — Adamawa VREK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <strong>Adamawa VREK</strong>
+    <span>Vote Reconciliation — Adamawa State</span>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="state-results.html">State results</a>
+    <a href="lga-results.html">LGA results</a>
+    <a href="charts.html">Charts</a>
+    <a href="progress.html" class="active">Collation progress</a>
+  </nav>
+</div>
+
+<div class="disclaimer">
+  Progress reflects only what has been entered on this device — it is not a live feed from INEC collation centers.
+</div>
+
+<main>
+  <div class="section">
+    <h1>Collation progress</h1>
+    <p class="lead">Adamawa State has 21 Local Government Areas. This page shows which have a result entered.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-label">Reported</span>
+      <span class="stat-value mono" id="reported-count">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Outstanding</span>
+      <span class="stat-value mono" id="outstanding-count">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Percent complete</span>
+      <span class="stat-value mono" id="pct-complete">—</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><h2>By LGA</h2></div>
+    <div class="lga-grid" id="lga-grid"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
+</footer>
+
+<script src="assets/data.js"></script>
+<script>
+  const results = getResults();
+  const reported = LGAS.filter(function (lga) { return results[lga].reported; });
+
+  document.getElementById("reported-count").textContent = reported.length + " / " + LGAS.length;
+  document.getElementById("outstanding-count").textContent = (LGAS.length - reported.length) + " / " + LGAS.length;
+  document.getElementById("pct-complete").textContent = ((reported.length / LGAS.length) * 100).toFixed(0) + "%";
+
+  const grid = document.getElementById("lga-grid");
+  LGAS.forEach(function (lga) {
+    const entry = results[lga];
+    const chip = document.createElement("div");
+    chip.className = "lga-chip" + (entry.reported ? " reported" : "");
+    chip.innerHTML = '<span class="dot"></span><span>' + lga + '</span>';
+    grid.appendChild(chip);
+  });
+</script>
+</body>
+</html>

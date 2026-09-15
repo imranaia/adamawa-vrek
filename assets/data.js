@@ -40,17 +40,34 @@ const CANDIDATES = [
     id: "pdp",
     party: "PDP",
     partyFull: "Peoples Democratic Party",
-    name: "Candidate not yet confirmed",
-    status: "pending",
-    note: "Primary outcome unconfirmed as of Sept 2026"
+    name: "Maurice Vunobolki",
+    runningMate: "Abubakar Mahmud Wambai",
+    status: "confirmed",
+    note: "PDP nominee, adopted Sept 2026"
   },
   {
     id: "lp",
     party: "LP",
     partyFull: "Labour Party",
-    name: "Candidate not yet confirmed",
-    status: "pending",
-    note: "Primary outcome unconfirmed as of Sept 2026"
+    name: "Ishaku Elisha Abbo",
+    status: "confirmed",
+    note: "Won LP primary, May 2026"
+  },
+  {
+    id: "sdp",
+    party: "SDP",
+    partyFull: "Social Democratic Party",
+    name: "Christopher Nathaniel",
+    status: "confirmed",
+    note: "SDP nominee, May 2026"
+  },
+  {
+    id: "ypp",
+    party: "YPP",
+    partyFull: "Young Progressives Party",
+    name: "Wafarinyi Theman Dalatu",
+    status: "confirmed",
+    note: "Won YPP primary, May 2026"
   },
   {
     id: "nnpp",
@@ -74,6 +91,8 @@ const PARTY_COLORS = {
   adc: "#FF6B00",
   pdp: "#E80020",
   lp: "#228B22",
+  sdp: "#14B8A6",
+  ypp: "#EC4899",
   nnpp: "#8B5CF6"
 };
 
@@ -89,27 +108,27 @@ const ACTIVITY_KEY = "vrek_adamawa_activity_v1";
  * results" (Admin only) clears it back to true zero.
  */
 const DEMO_RESULTS = {
-  "Demsa":       { apc: 9500,  adc: 8800,  pdp: 1800, lp: 1200, nnpp: 700 },
-  "Fufure":      { apc: 6200,  adc: 5400,  pdp: 1300, lp: 700,  nnpp: 400 },
-  "Ganye":       { apc: 10500, adc: 11800, pdp: 2200, lp: 900,  nnpp: 600 },
-  "Girei":       { apc: 13500, adc: 12800, pdp: 2800, lp: 1200, nnpp: 700 },
-  "Gombi":       { apc: 8600,  adc: 7200,  pdp: 1900, lp: 800,  nnpp: 500 },
-  "Guyuk":       { apc: 6100,  adc: 6800,  pdp: 1400, lp: 500,  nnpp: 200 },
-  "Hong":        { apc: 9800,  adc: 8100,  pdp: 1900, lp: 800,  nnpp: 400 },
-  "Jada":        { apc: 7200,  adc: 7600,  pdp: 1400, lp: 500,  nnpp: 300 },
-  "Lamurde":     { apc: 5400,  adc: 4900,  pdp: 1000, lp: 500,  nnpp: 200 },
-  "Madagali":    { apc: 6900,  adc: 6500,  pdp: 1600, lp: 700,  nnpp: 300 },
-  "Maiha":       { apc: 5900,  adc: 5400,  pdp: 1400, lp: 500,  nnpp: 300 },
-  "Mayo-Belwa":  { apc: 10800, adc: 9900,  pdp: 2100, lp: 800,  nnpp: 400 },
-  "Michika":     { apc: 9600,  adc: 9200,  pdp: 2100, lp: 700,  nnpp: 400 },
-  "Mubi North":  { apc: 16200, adc: 17800, pdp: 2900, lp: 800,  nnpp: 300 },
-  "Mubi South":  { apc: 12900, adc: 12600, pdp: 2600, lp: 600,  nnpp: 300 },
-  "Numan":       { apc: 8700,  adc: 8100,  pdp: 2100, lp: 700,  nnpp: 400 },
-  "Shelleng":    { apc: 4900,  adc: 4500,  pdp: 1100, lp: 350,  nnpp: 150 },
-  "Song":        { apc: 10200, adc: 9400,  pdp: 2200, lp: 800,  nnpp: 400 },
-  "Toungo":      { apc: 2900,  adc: 2600,  pdp: 700,  lp: 200,  nnpp: 100 },
-  "Yola North":  { apc: 17600, adc: 18900, pdp: 3200, lp: 900,  nnpp: 400 },
-  "Yola South":  { apc: 15900, adc: 15700, pdp: 3000, lp: 900,  nnpp: 500 }
+  "Demsa":       { apc: 9500,  adc: 8800,  pdp: 1800, lp: 1200, sdp: 800, ypp: 250, nnpp: 700 },
+  "Fufure":      { apc: 6200,  adc: 5400,  pdp: 1300, lp: 700,  sdp: 450, ypp: 150, nnpp: 400 },
+  "Ganye":       { apc: 10500, adc: 11800, pdp: 2200, lp: 900,  sdp: 600, ypp: 200, nnpp: 600 },
+  "Girei":       { apc: 13500, adc: 12800, pdp: 2800, lp: 1200, sdp: 800, ypp: 250, nnpp: 700 },
+  "Gombi":       { apc: 8600,  adc: 7200,  pdp: 1900, lp: 800,  sdp: 500, ypp: 180, nnpp: 500 },
+  "Guyuk":       { apc: 6100,  adc: 6800,  pdp: 1400, lp: 500,  sdp: 300, ypp: 100, nnpp: 200 },
+  "Hong":        { apc: 9800,  adc: 8100,  pdp: 1900, lp: 800,  sdp: 500, ypp: 150, nnpp: 400 },
+  "Jada":        { apc: 7200,  adc: 7600,  pdp: 1400, lp: 500,  sdp: 350, ypp: 120, nnpp: 300 },
+  "Lamurde":     { apc: 5400,  adc: 4900,  pdp: 1000, lp: 500,  sdp: 300, ypp: 100, nnpp: 200 },
+  "Madagali":    { apc: 6900,  adc: 6500,  pdp: 1600, lp: 700,  sdp: 450, ypp: 120, nnpp: 300 },
+  "Maiha":       { apc: 5900,  adc: 5400,  pdp: 1400, lp: 500,  sdp: 350, ypp: 120, nnpp: 300 },
+  "Mayo-Belwa":  { apc: 10800, adc: 9900,  pdp: 2100, lp: 800,  sdp: 550, ypp: 180, nnpp: 400 },
+  "Michika":     { apc: 9600,  adc: 9200,  pdp: 2100, lp: 700,  sdp: 500, ypp: 150, nnpp: 400 },
+  "Mubi North":  { apc: 16200, adc: 17800, pdp: 2900, lp: 800,  sdp: 600, ypp: 150, nnpp: 300 },
+  "Mubi South":  { apc: 12900, adc: 12600, pdp: 2600, lp: 600,  sdp: 450, ypp: 130, nnpp: 300 },
+  "Numan":       { apc: 8700,  adc: 8100,  pdp: 2100, lp: 700,  sdp: 500, ypp: 150, nnpp: 400 },
+  "Shelleng":    { apc: 4900,  adc: 4500,  pdp: 1100, lp: 350,  sdp: 250, ypp: 80,  nnpp: 150 },
+  "Song":        { apc: 10200, adc: 9400,  pdp: 2200, lp: 800,  sdp: 550, ypp: 180, nnpp: 400 },
+  "Toungo":      { apc: 2900,  adc: 2600,  pdp: 700,  lp: 200,  sdp: 150, ypp: 50,  nnpp: 100 },
+  "Yola North":  { apc: 17600, adc: 18900, pdp: 3200, lp: 900,  sdp: 700, ypp: 200, nnpp: 400 },
+  "Yola South":  { apc: 15900, adc: 15700, pdp: 3000, lp: 900,  sdp: 650, ypp: 200, nnpp: 500 }
 };
 const DEMO_TIMESTAMP = "2027-03-15T09:00:00.000Z";
 const DEMO_ACTOR = "Demo seed data";

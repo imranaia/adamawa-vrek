@@ -83,7 +83,7 @@
 
   document.getElementById("lga-grid").innerHTML = LGAS.map(function (lga) {
     const entry = results[lga];
-    return '<div class="state-chip' + (entry.reported ? ' reported' : '') + '"><div class="state-chip-name">' + lga + '</div><div class="state-chip-pct">' + (entry.reported ? 'Reported' : 'Pending') + '</div></div>';
+    return '<a class="state-chip' + (entry.reported ? ' reported' : '') + '" href="lga-results.html?lga=' + encodeURIComponent(lga) + '"><div class="state-chip-name">' + lga + '</div><div class="state-chip-pct">' + (entry.reported ? 'Reported' : 'Pending') + '</div></a>';
   }).join("");
 </script>
 </body>

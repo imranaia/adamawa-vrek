@@ -50,8 +50,9 @@
         <select id="lga-select"></select>
       </div>
       <div class="field-grid" id="candidate-inputs"></div>
-      <div style="display:flex; gap:0.75rem;">
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
         <button type="submit" class="primary">Save result</button>
+        <button type="button" class="secondary" id="demo-btn">Load sample data (all 21 LGAs)</button>
         <button type="button" class="secondary" id="reset-btn">Reset all results</button>
       </div>
       <p class="error-text" id="save-msg"></p>
@@ -84,7 +85,10 @@
     document.getElementById("entry-label").innerHTML =
       '<i class="fas fa-pen-to-square" style="color:var(--accent2);"></i>Enter LGA result &middot; ' +
       (session.lga ? 'restricted to ' + session.lga : 'any LGA');
-    if (!canReset()) document.getElementById("reset-btn").hidden = true;
+    if (!canReset()) {
+      document.getElementById("reset-btn").hidden = true;
+      document.getElementById("demo-btn").hidden = true;
+    }
   } else {
     sessionBox.innerHTML = '<a href="admin-login.html" class="btn-login"><i class="fas fa-user-shield"></i> Officer login</a>';
   }
@@ -158,6 +162,14 @@
       document.getElementById("save-msg").style.color = "var(--accent)";
       document.getElementById("save-msg").textContent = "Saved " + lga + ".";
       renderStandings();
+    });
+
+    document.getElementById("demo-btn").addEventListener("click", function () {
+      seedDemoData();
+      loadExistingForLga();
+      renderStandings();
+      document.getElementById("save-msg").style.color = "var(--accent)";
+      document.getElementById("save-msg").textContent = "Sample data loaded for all 21 LGAs.";
     });
 
     document.getElementById("reset-btn").addEventListener("click", function () {

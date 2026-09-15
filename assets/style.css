@@ -265,8 +265,12 @@ p.lead { color: var(--muted); max-width: 68ch; font-size: 0.92rem; }
 
 .states-card { grid-column: 1 / -1; }
 .states-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
-.state-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; text-align: center; transition: border-color 0.15s, background 0.15s; }
-.state-chip:hover { border-color: var(--accent2); }
+.state-chip {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 7px;
+  padding: 8px 10px; text-align: center; transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  display: block; text-decoration: none; color: inherit; cursor: pointer;
+}
+.state-chip:hover { border-color: var(--accent2); transform: translateY(-1px); }
 .state-chip.reported { border-color: rgba(0, 168, 107, 0.3); background: rgba(0, 168, 107, 0.06); }
 .state-chip-name { font-size: 0.7rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .state-chip-pct { font-family: "IBM Plex Mono", monospace; font-size: 0.62rem; color: var(--muted); margin-top: 2px; }

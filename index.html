@@ -240,11 +240,11 @@
     `).join("");
   }
 
-  // LGA grid
+  // LGA grid — each chip links to that LGA's own results/chart page
   const results = getResults();
   document.getElementById("states-grid").innerHTML = LGAS.map(lga => {
     const r = results[lga];
-    return `<div class="state-chip ${r.reported ? 'reported' : ''}"><div class="state-chip-name">${lga}</div><div class="state-chip-pct">${r.reported ? 'Reported' : 'Pending'}</div></div>`;
+    return `<a class="state-chip ${r.reported ? 'reported' : ''}" href="lga-results.html?lga=${encodeURIComponent(lga)}"><div class="state-chip-name">${lga}</div><div class="state-chip-pct">${r.reported ? 'Reported' : 'Pending'}</div></a>`;
   }).join("");
 
   // Ticker — built only from real computed numbers

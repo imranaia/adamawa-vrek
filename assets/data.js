@@ -80,6 +80,40 @@ const PARTY_COLORS = {
 const STORAGE_KEY = "vrek_adamawa_results_v1";
 const ACTIVITY_KEY = "vrek_adamawa_activity_v1";
 
+/**
+ * Hand-authored SAMPLE dataset so a first-time visitor sees a populated
+ * dashboard instead of a wall of zeros. Not official results, not real
+ * votes — varied on purpose (several LGAs go to ADC, most to APC) so it
+ * reads as a plausible contested race rather than a scripted landslide.
+ * Anyone can overwrite it LGA-by-LGA from the entry form, and "Reset all
+ * results" (Admin only) clears it back to true zero.
+ */
+const DEMO_RESULTS = {
+  "Demsa":       { apc: 9500,  adc: 8800,  pdp: 1800, lp: 1200, nnpp: 700 },
+  "Fufure":      { apc: 6200,  adc: 5400,  pdp: 1300, lp: 700,  nnpp: 400 },
+  "Ganye":       { apc: 10500, adc: 11800, pdp: 2200, lp: 900,  nnpp: 600 },
+  "Girei":       { apc: 13500, adc: 12800, pdp: 2800, lp: 1200, nnpp: 700 },
+  "Gombi":       { apc: 8600,  adc: 7200,  pdp: 1900, lp: 800,  nnpp: 500 },
+  "Guyuk":       { apc: 6100,  adc: 6800,  pdp: 1400, lp: 500,  nnpp: 200 },
+  "Hong":        { apc: 9800,  adc: 8100,  pdp: 1900, lp: 800,  nnpp: 400 },
+  "Jada":        { apc: 7200,  adc: 7600,  pdp: 1400, lp: 500,  nnpp: 300 },
+  "Lamurde":     { apc: 5400,  adc: 4900,  pdp: 1000, lp: 500,  nnpp: 200 },
+  "Madagali":    { apc: 6900,  adc: 6500,  pdp: 1600, lp: 700,  nnpp: 300 },
+  "Maiha":       { apc: 5900,  adc: 5400,  pdp: 1400, lp: 500,  nnpp: 300 },
+  "Mayo-Belwa":  { apc: 10800, adc: 9900,  pdp: 2100, lp: 800,  nnpp: 400 },
+  "Michika":     { apc: 9600,  adc: 9200,  pdp: 2100, lp: 700,  nnpp: 400 },
+  "Mubi North":  { apc: 16200, adc: 17800, pdp: 2900, lp: 800,  nnpp: 300 },
+  "Mubi South":  { apc: 12900, adc: 12600, pdp: 2600, lp: 600,  nnpp: 300 },
+  "Numan":       { apc: 8700,  adc: 8100,  pdp: 2100, lp: 700,  nnpp: 400 },
+  "Shelleng":    { apc: 4900,  adc: 4500,  pdp: 1100, lp: 350,  nnpp: 150 },
+  "Song":        { apc: 10200, adc: 9400,  pdp: 2200, lp: 800,  nnpp: 400 },
+  "Toungo":      { apc: 2900,  adc: 2600,  pdp: 700,  lp: 200,  nnpp: 100 },
+  "Yola North":  { apc: 17600, adc: 18900, pdp: 3200, lp: 900,  nnpp: 400 },
+  "Yola South":  { apc: 15900, adc: 15700, pdp: 3000, lp: 900,  nnpp: 500 }
+};
+const DEMO_TIMESTAMP = "2027-03-15T09:00:00.000Z";
+const DEMO_ACTOR = "Demo seed data";
+
 function getActivity() {
   try {
     return JSON.parse(localStorage.getItem(ACTIVITY_KEY)) || [];
@@ -113,10 +147,27 @@ function defaultResults() {
   return results;
 }
 
+function demoResultsData() {
+  const results = defaultResults();
+  LGAS.forEach(function (lga) {
+    const votes = DEMO_RESULTS[lga];
+    if (!votes) return;
+    results[lga] = { reported: true, votes: Object.assign({}, votes), updatedAt: DEMO_TIMESTAMP, enteredBy: DEMO_ACTOR };
+  });
+  return results;
+}
+
 function getResults() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultResults();
+    // First-ever visit to this browser: seed with the sample dataset so the
+    // dashboard isn't a wall of zeros, and persist it so it's stable across
+    // reloads until someone resets or overwrites individual LGAs.
+    if (!raw) {
+      const seeded = demoResultsData();
+      saveResults(seeded);
+      return seeded;
+    }
     const parsed = JSON.parse(raw);
     const base = defaultResults();
     return Object.assign(base, parsed);
@@ -127,6 +178,17 @@ function getResults() {
 
 function saveResults(results) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
+}
+
+function seedDemoData() {
+  const seeded = demoResultsData();
+  saveResults(seeded);
+  addActivity("ok", "Sample dataset loaded for all 21 LGAs");
+  return seeded;
+}
+
+function findZoneForLga(lga) {
+  return Object.keys(ZONES).find(function (zone) { return ZONES[zone].includes(lga); }) || null;
 }
 
 function setLgaResult(lgaName, votesByCandidateId, actor) {

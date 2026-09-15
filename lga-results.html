@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -30,7 +31,7 @@
 </header>
 
 <div class="disclaimer">
-  Drill into a single Local Government Area. Unreported LGAs show zero votes for every candidate.
+  Drill into a single Local Government Area. Figures reflect only what's stored on this device — not an official INEC source.
 </div>
 
 <main class="simple">
@@ -38,7 +39,7 @@
     <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
     <div>
       <h1 class="page-title">Results by LGA</h1>
-      <p class="lead">Choose one of Adamawa's 21 Local Government Areas to see its reported figures.</p>
+      <p class="lead">Choose one of Adamawa's 21 Local Government Areas, or click one anywhere on the site, to see its own breakdown and chart.</p>
     </div>
     <div class="field" style="max-width:320px; margin-top:1rem;">
       <label for="lga-select">Local Government Area</label>
@@ -46,8 +47,20 @@
     </div>
   </div>
 
+  <div class="stat-cards" id="lga-stats" style="grid-column:unset;"></div>
+
   <div class="card">
     <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent2), transparent);"></div>
+    <div class="card-label"><i class="fas fa-chart-pie" style="color:var(--accent2);"></i>Vote distribution for this LGA</div>
+    <div class="chart-wrap" id="chart-wrap" style="height:220px;">
+      <canvas id="lgaChart" width="200" height="200"></canvas>
+      <div class="chart-center"><div class="chart-center-num" id="chart-center-num">—</div><div class="chart-center-label">leading</div></div>
+    </div>
+    <p class="empty-note" id="chart-empty" hidden>No votes entered for this LGA yet.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--gold), transparent);"></div>
     <div class="card-label" id="lga-heading" style="font-family:'Archivo',sans-serif; font-size:1.1rem; text-transform:none; letter-spacing:0; color:var(--text);">—</div>
     <div class="stat-note" id="lga-status" style="margin-bottom:0.75rem;"></div>
     <div id="lga-rows"></div>
@@ -66,21 +79,39 @@
     select.appendChild(opt);
   });
 
+  // A chip clicked elsewhere on the site links here as ?lga=<name>.
+  const requested = new URLSearchParams(window.location.search).get("lga");
+  if (requested && LGAS.includes(requested)) select.value = requested;
+
+  let chart = null;
+
   function render() {
     const lga = select.value;
     const results = getResults();
     const entry = results[lga];
+    const zone = findZoneForLga(lga);
 
     document.getElementById("lga-heading").textContent = lga;
     document.getElementById("lga-status").textContent = entry.reported
-      ? "Reported " + new Date(entry.updatedAt).toLocaleString()
+      ? "Reported " + new Date(entry.updatedAt).toLocaleString() + (entry.enteredBy ? " by " + entry.enteredBy : "")
       : "Not yet reported";
 
     const total = CANDIDATES.reduce(function (sum, c) { return sum + (entry.votes[c.id] || 0); }, 0);
     const rows = CANDIDATES
       .map(function (c) { return Object.assign({}, c, { votes: entry.votes[c.id] || 0 }); })
       .sort(function (a, b) { return b.votes - a.votes; });
+    const leader = rows[0];
+    const runnerUp = rows[1];
 
+    // Summary stat tiles for this one LGA
+    document.getElementById("lga-stats").innerHTML = `
+      <div class="stat-card"><div class="stat-icon grey"><i class="fas fa-layer-group"></i></div><div class="stat-num" style="font-size:1.1rem;">${zone || "—"}</div><div class="stat-label">Senatorial zone</div></div>
+      <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-vote-yea"></i></div><div class="stat-num mono">${total.toLocaleString()}</div><div class="stat-label">Votes counted here</div></div>
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-crown"></i></div><div class="stat-num" style="font-size:1.1rem;">${total > 0 ? leader.party : "No results yet"}</div><div class="stat-label">Leading party here</div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-arrows-left-right"></i></div><div class="stat-num mono">${total > 0 && runnerUp ? (leader.votes - runnerUp.votes).toLocaleString() : "—"}</div><div class="stat-label">Margin (votes)</div></div>
+    `;
+
+    // Per-candidate rows
     const container = document.getElementById("lga-rows");
     container.innerHTML = "";
     rows.forEach(function (c) {
@@ -95,9 +126,36 @@
         '<div class="pct">' + pct.toFixed(1) + '%</div>';
       container.appendChild(row);
     });
+
+    // This LGA's own donut chart
+    document.getElementById("chart-empty").hidden = total > 0;
+    document.getElementById("chart-wrap").style.display = total > 0 ? "flex" : "none";
+    document.getElementById("chart-center-num").textContent = total > 0 ? leader.party : "—";
+    document.getElementById("chart-center-num").style.color = total > 0 ? (PARTY_COLORS[leader.id] || "var(--text)") : "var(--muted)";
+
+    if (chart) { chart.destroy(); chart = null; }
+    if (total > 0) {
+      chart = new Chart(document.getElementById("lgaChart").getContext("2d"), {
+        type: "doughnut",
+        data: {
+          labels: rows.map(function (c) { return c.party; }),
+          datasets: [{
+            data: rows.map(function (c) { return c.votes; }),
+            backgroundColor: rows.map(function (c) { return PARTY_COLORS[c.id] || "#94a3b8"; }),
+            borderWidth: 2, borderColor: "#ffffff"
+          }]
+        },
+        options: { cutout: "68%", plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } } }, animation: { duration: 700 } }
+      });
+    }
   }
 
-  select.addEventListener("change", render);
+  select.addEventListener("change", function () {
+    render();
+    const url = new URL(window.location);
+    url.searchParams.set("lga", select.value);
+    window.history.replaceState({}, "", url);
+  });
   render();
 
   setInterval(function () {

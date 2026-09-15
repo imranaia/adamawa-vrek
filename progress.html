@@ -20,6 +20,11 @@
     <a href="charts.html">Charts</a>
     <a href="progress.html" class="active">Progress</a>
   </nav>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="clock mono" id="clock">--:--:--</div>
+    <a href="admin-login.html" class="btn-login"><i class="fas fa-user-shield"></i> Admin / Agent</a>
+  </div>
 </header>
 
 <div class="disclaimer">
@@ -51,6 +56,11 @@
 
 <script src="assets/data.js"></script>
 <script>
+  setInterval(function () {
+    document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-NG", { hour12: false });
+  }, 1000);
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-NG", { hour12: false });
+
   const results = getResults();
   const reported = LGAS.filter(function (lga) { return results[lga].reported; });
   const pct = Math.round((reported.length / LGAS.length) * 100);

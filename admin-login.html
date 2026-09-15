@@ -20,6 +20,10 @@
     <a href="charts.html">Charts</a>
     <a href="progress.html">Progress</a>
   </nav>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="clock mono" id="clock">--:--:--</div>
+  </div>
 </header>
 
 <div class="disclaimer">
@@ -53,6 +57,11 @@
 
 <script src="assets/auth.js"></script>
 <script>
+  setInterval(function () {
+    document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-NG", { hour12: false });
+  }, 1000);
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-NG", { hour12: false });
+
   document.getElementById("login-form").addEventListener("submit", function (e) {
     e.preventDefault();
     const u = document.getElementById("username").value.trim();

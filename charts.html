@@ -21,6 +21,11 @@
     <a href="charts.html" class="active">Charts</a>
     <a href="progress.html">Progress</a>
   </nav>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="clock mono" id="clock">--:--:--</div>
+    <a href="admin-login.html" class="btn-login"><i class="fas fa-user-shield"></i> Admin / Agent</a>
+  </div>
 </header>
 
 <div class="disclaimer">
@@ -38,7 +43,7 @@
     <div class="card-label"><i class="fas fa-chart-pie" style="color:var(--accent2);"></i>Vote distribution</div>
     <div class="chart-wrap" style="height:260px;">
       <canvas id="donutChart" width="240" height="240"></canvas>
-      <div class="chart-center"><div class="chart-center-num" id="chart-center-num">0%</div><div class="chart-center-label">reported</div></div>
+      <div class="chart-center"><div class="chart-center-num" id="chart-center-num">0%</div><div class="chart-center-label">leading</div></div>
     </div>
     <div class="chart-legend" id="chart-legend"></div>
   </div>
@@ -54,10 +59,16 @@
 
 <script src="assets/data.js"></script>
 <script>
+  setInterval(function () {
+    document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-NG", { hour12: false });
+  }, 1000);
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-NG", { hour12: false });
+
   const s = computeStandings();
   const hasVotes = s.grandTotal > 0;
-  const reportingPct = Math.round((s.reportedCount / s.totalLgas) * 100);
-  document.getElementById("chart-center-num").textContent = reportingPct + "%";
+  const leader = s.standings[0];
+  document.getElementById("chart-center-num").textContent = hasVotes ? leader.party : "—";
+  document.getElementById("chart-center-num").style.color = hasVotes ? (PARTY_COLORS[leader.id] || "var(--text)") : "var(--muted)";
 
   const colors = s.standings.map(c => PARTY_COLORS[c.id] || "#94a3b8");
 

@@ -99,7 +99,7 @@
       <div class="card-label"><i class="fas fa-chart-pie" style="color:var(--accent2);"></i>Vote distribution</div>
       <div class="chart-wrap">
         <canvas id="donutChart" width="170" height="170"></canvas>
-        <div class="chart-center"><div class="chart-center-num" id="chart-center-num">0%</div><div class="chart-center-label">reported</div></div>
+        <div class="chart-center"><div class="chart-center-num" id="chart-center-num">0%</div><div class="chart-center-label">leading</div></div>
       </div>
       <div class="chart-legend" id="chart-legend"></div>
     </div>
@@ -185,14 +185,16 @@
       <td><div class="party-name-cell"><div class="party-dot" style="background:${PARTY_COLORS[c.id] || 'var(--pending)'}"></div>${c.party}${c.status === "pending" ? '<span class="pending-badge">PENDING</span>' : ''}</div></td>
       <td><span class="votes-num">${c.votes.toLocaleString()}</span></td>
       <td><div class="bar-wrap"><div class="mini-bar"><div class="mini-bar-fill" style="background:${PARTY_COLORS[c.id] || 'var(--pending)'}; width:${((c.votes / max) * 100).toFixed(1)}%"></div></div><span class="pct-label">${c.pct.toFixed(1)}%</span></div></td>
-      <td><span class="votes-num">0</span></td>
+      <td><span class="votes-num">${c.lgasWon}</span></td>
     </tr>
   `).join("");
 
-  // Donut chart
-  document.getElementById("chart-center-num").textContent = reportingPct + "%";
-  const ctx = document.getElementById("donutChart").getContext("2d");
+  // Donut chart — center label reflects the donut's own content (the leader),
+  // not the unrelated LGA-reporting percentage.
   const hasVotes = s.grandTotal > 0;
+  document.getElementById("chart-center-num").textContent = hasVotes ? leader.party : "—";
+  document.getElementById("chart-center-num").style.color = hasVotes ? (PARTY_COLORS[leader.id] || "var(--text)") : "var(--muted)";
+  const ctx = document.getElementById("donutChart").getContext("2d");
   new Chart(ctx, {
     type: "doughnut",
     data: {

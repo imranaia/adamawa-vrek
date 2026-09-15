@@ -162,10 +162,24 @@ function computeStandings() {
 
   const grandTotal = Object.values(totals).reduce(function (a, b) { return a + b; }, 0);
 
+  const lgasWon = {};
+  CANDIDATES.forEach(function (c) { lgasWon[c.id] = 0; });
+  Object.keys(results).forEach(function (lga) {
+    const entry = results[lga];
+    if (!entry.reported) return;
+    let bestId = null, bestVotes = -1, tie = false;
+    Object.keys(entry.votes || {}).forEach(function (cid) {
+      const v = Number(entry.votes[cid]) || 0;
+      if (v > bestVotes) { bestVotes = v; bestId = cid; tie = false; }
+      else if (v === bestVotes) { tie = true; }
+    });
+    if (bestId && bestVotes > 0 && !tie) lgasWon[bestId]++;
+  });
+
   const standings = CANDIDATES.map(function (c) {
     const votes = totals[c.id] || 0;
     const pct = grandTotal > 0 ? (votes / grandTotal) * 100 : 0;
-    return Object.assign({}, c, { votes: votes, pct: pct });
+    return Object.assign({}, c, { votes: votes, pct: pct, lgasWon: lgasWon[c.id] || 0 });
   }).sort(function (a, b) { return b.votes - a.votes; });
 
   return {

@@ -3,111 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Adamawa VREK</title>
+<title>Admin Dashboard · Adamawa VREK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">
-    <strong>Adamawa VREK</strong>
-    <span>Vote Reconciliation — Adamawa State</span>
-  </div>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="dashboard.html" class="active">Dashboard</a>
+<header class="topbar">
+  <div class="logo"><div class="logo-mark">AV</div>Adamawa <span>VREK</span></div>
+  <nav class="nav-links">
+    <a href="index.html">Dashboard</a>
     <a href="state-results.html">State results</a>
-    <a href="lga-results.html">LGA results</a>
+    <a href="lga-results.html">LGAs</a>
     <a href="charts.html">Charts</a>
-    <a href="progress.html">Collation progress</a>
+    <a href="progress.html">Progress</a>
   </nav>
-  <div class="session">
-    <span id="session-label"></span>
-    <button id="logout-btn">Log out</button>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="clock mono" id="clock">--:--:--</div>
+    <a href="#" class="btn-login" id="logout-btn"><i class="fas fa-right-from-bracket"></i> Log out</a>
   </div>
-</div>
+</header>
 
 <div class="disclaimer">
   Figures below come only from results entered on this device. Nothing here is an official INEC figure.
 </div>
 
-<main>
-  <div class="section">
-    <h1>Dashboard</h1>
-    <p class="lead">Live overview of statewide standings and collation progress, computed from whatever LGA results have been entered so far.</p>
+<main class="simple">
+  <div>
+    <h1 class="page-title">Admin dashboard</h1>
+    <p class="lead">Live overview of statewide standings and collation progress, computed only from LGA results that have actually been entered.</p>
   </div>
 
-  <div class="stats">
-    <div class="stat">
-      <span class="stat-label">LGAs reported</span>
-      <span class="stat-value mono" id="stat-reported">—</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Total votes counted</span>
-      <span class="stat-value mono" id="stat-total">—</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Leading candidate</span>
-      <span class="stat-value" id="stat-leader">—</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Lead margin</span>
-      <span class="stat-value mono" id="stat-margin">—</span>
-    </div>
-  </div>
+  <div class="stat-cards" id="stat-cards" style="grid-column:unset;"></div>
 
-  <div class="section">
-    <div class="section-header">
-      <h2>Current statewide standings</h2>
-      <small><a href="state-results.html">Enter or edit results →</a></small>
-    </div>
+  <div class="card">
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
+    <div class="card-label"><i class="fas fa-trophy" style="color:var(--gold);"></i>Current statewide standings</div>
     <div id="standings-list"></div>
+    <a href="state-results.html" style="font-size:0.85rem; color:var(--accent2);">Enter or edit results &rarr;</a>
   </div>
 </main>
 
-<footer class="site-footer">
-  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
-</footer>
+<footer class="site-footer">Adamawa VREK &middot; unofficial collation tool &middot; not an official INEC source</footer>
 
 <script src="assets/auth.js"></script>
 <script src="assets/data.js"></script>
 <script>
   requireLogin();
 
-  document.getElementById("session-label").textContent = "Signed in as admin";
-  document.getElementById("logout-btn").addEventListener("click", function () {
+  function updateClock() {
+    document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-NG", { hour12: false });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  document.getElementById("logout-btn").addEventListener("click", function (e) {
+    e.preventDefault();
     logout();
     window.location.href = "index.html";
   });
 
-  const data = computeStandings();
-  document.getElementById("stat-reported").textContent = data.reportedCount + " / " + data.totalLgas;
-  document.getElementById("stat-total").textContent = data.grandTotal.toLocaleString();
+  const s = computeStandings();
+  const leader = s.standings[0];
+  const runnerUp = s.standings[1];
 
-  const leader = data.standings[0];
-  const runnerUp = data.standings[1];
-  if (data.grandTotal > 0) {
-    document.getElementById("stat-leader").textContent = leader.name + " (" + leader.party + ")";
-    document.getElementById("stat-margin").textContent = (leader.votes - runnerUp.votes).toLocaleString() + " votes";
-  } else {
-    document.getElementById("stat-leader").textContent = "No results yet";
-    document.getElementById("stat-margin").textContent = "—";
-  }
+  document.getElementById("stat-cards").innerHTML = `
+    <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-num mono">${s.reportedCount} / ${s.totalLgas}</div><div class="stat-label">LGAs reported</div></div>
+    <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-vote-yea"></i></div><div class="stat-num mono">${s.grandTotal.toLocaleString()}</div><div class="stat-label">Total votes counted</div></div>
+    <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-crown"></i></div><div class="stat-num" style="font-size:1.1rem;">${s.grandTotal > 0 ? leader.name + ' (' + leader.party + ')' : 'No results yet'}</div><div class="stat-label">Leading candidate</div></div>
+    <div class="stat-card"><div class="stat-icon grey"><i class="fas fa-arrows-left-right"></i></div><div class="stat-num mono">${s.grandTotal > 0 && runnerUp ? (leader.votes - runnerUp.votes).toLocaleString() : '—'}</div><div class="stat-label">Lead margin (votes)</div></div>
+  `;
 
-  const list = document.getElementById("standings-list");
-  data.standings.forEach(function (c, i) {
-    const row = document.createElement("div");
-    row.className = "row";
-    row.innerHTML =
-      '<div><span class="candidate-name">' + (i + 1) + '. ' + c.name + '</span>' +
-      '<span class="party-pill">' + c.party + '</span></div>' +
-      '<div class="bar-track"><div class="bar-fill" style="width:' + c.pct.toFixed(1) + '%"></div></div>' +
-      '<div class="votes">' + c.votes.toLocaleString() + ' votes</div>' +
-      '<div class="pct">' + c.pct.toFixed(1) + '%</div>';
-    list.appendChild(row);
-  });
+  document.getElementById("standings-list").innerHTML = s.standings.map((c, i) => `
+    <div class="row">
+      <div><span class="candidate-name">${i + 1}. ${c.name}</span><span class="pending-badge" style="border-color:var(--border2); color:var(--muted);">${c.party}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${c.pct.toFixed(1)}%; background:${PARTY_COLORS[c.id] || 'var(--pending)'}"></div></div>
+      <div class="votes">${c.votes.toLocaleString()} votes</div>
+      <div class="pct">${c.pct.toFixed(1)}%</div>
+    </div>
+  `).join("");
 </script>
 </body>
 </html>

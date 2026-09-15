@@ -3,54 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LGA Results — Adamawa VREK</title>
+<title>LGA Results · Adamawa VREK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">
-    <strong>Adamawa VREK</strong>
-    <span>Vote Reconciliation — Adamawa State</span>
-  </div>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="dashboard.html">Dashboard</a>
+<header class="topbar">
+  <div class="logo"><div class="logo-mark">AV</div>Adamawa <span>VREK</span></div>
+  <nav class="nav-links">
+    <a href="index.html">Dashboard</a>
     <a href="state-results.html">State results</a>
-    <a href="lga-results.html" class="active">LGA results</a>
+    <a href="lga-results.html" class="active">LGAs</a>
     <a href="charts.html">Charts</a>
-    <a href="progress.html">Collation progress</a>
+    <a href="progress.html">Progress</a>
   </nav>
-</div>
+</header>
 
 <div class="disclaimer">
   Drill into a single Local Government Area. Unreported LGAs show zero votes for every candidate.
 </div>
 
-<main>
-  <div class="section">
-    <h1>Results by LGA</h1>
-    <p class="lead">Choose one of Adamawa's 21 Local Government Areas to see its reported figures.</p>
-    <div class="field" style="max-width:320px;">
+<main class="simple">
+  <div class="card">
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
+    <div>
+      <h1 class="page-title">Results by LGA</h1>
+      <p class="lead">Choose one of Adamawa's 21 Local Government Areas to see its reported figures.</p>
+    </div>
+    <div class="field" style="max-width:320px; margin-top:1rem;">
       <label for="lga-select">Local Government Area</label>
       <select id="lga-select"></select>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-header">
-      <h2 id="lga-heading">—</h2>
-      <small id="lga-status"></small>
-    </div>
+  <div class="card">
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent2), transparent);"></div>
+    <div class="card-label" id="lga-heading" style="font-family:'Syne',sans-serif; font-size:1.1rem; text-transform:none; letter-spacing:0; color:var(--text);">—</div>
+    <div class="stat-note" id="lga-status" style="margin-bottom:0.75rem;"></div>
     <div id="lga-rows"></div>
   </div>
 </main>
 
-<footer class="site-footer">
-  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
-</footer>
+<footer class="site-footer">Adamawa VREK &middot; unofficial collation tool &middot; not an official INEC source</footer>
 
 <script src="assets/data.js"></script>
 <script>
@@ -85,8 +82,8 @@
       row.className = "row";
       row.innerHTML =
         '<div><span class="candidate-name">' + c.name + '</span>' +
-        '<span class="party-pill">' + c.party + '</span></div>' +
-        '<div class="bar-track"><div class="bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+        '<span class="pending-badge" style="border-color:var(--border2); color:var(--muted);">' + c.party + '</span></div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + pct.toFixed(1) + '%; background:' + (PARTY_COLORS[c.id] || 'var(--pending)') + '"></div></div>' +
         '<div class="votes">' + c.votes.toLocaleString() + ' votes</div>' +
         '<div class="pct">' + pct.toFixed(1) + '%</div>';
       container.appendChild(row);

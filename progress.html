@@ -3,80 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Collation Progress — Adamawa VREK</title>
+<title>Collation Progress · Adamawa VREK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">
-    <strong>Adamawa VREK</strong>
-    <span>Vote Reconciliation — Adamawa State</span>
-  </div>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="dashboard.html">Dashboard</a>
+<header class="topbar">
+  <div class="logo"><div class="logo-mark">AV</div>Adamawa <span>VREK</span></div>
+  <nav class="nav-links">
+    <a href="index.html">Dashboard</a>
     <a href="state-results.html">State results</a>
-    <a href="lga-results.html">LGA results</a>
+    <a href="lga-results.html">LGAs</a>
     <a href="charts.html">Charts</a>
-    <a href="progress.html" class="active">Collation progress</a>
+    <a href="progress.html" class="active">Progress</a>
   </nav>
-</div>
+</header>
 
 <div class="disclaimer">
   Progress reflects only what has been entered on this device — it is not a live feed from INEC collation centers.
 </div>
 
-<main>
-  <div class="section">
-    <h1>Collation progress</h1>
-    <p class="lead">Adamawa State has 21 Local Government Areas. This page shows which have a result entered.</p>
+<main class="simple">
+  <div>
+    <h1 class="page-title">Collation progress</h1>
+    <p class="lead">Adamawa State has 21 Local Government Areas across 3 senatorial zones. This page shows which have a result entered.</p>
   </div>
 
-  <div class="stats">
-    <div class="stat">
-      <span class="stat-label">Reported</span>
-      <span class="stat-value mono" id="reported-count">—</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Outstanding</span>
-      <span class="stat-value mono" id="outstanding-count">—</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Percent complete</span>
-      <span class="stat-value mono" id="pct-complete">—</span>
-    </div>
+  <div class="stat-cards" id="stat-cards" style="grid-column:unset;"></div>
+
+  <div class="card">
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
+    <div class="card-label"><i class="fas fa-tasks" style="color:var(--accent);"></i>By senatorial zone</div>
+    <div class="progress-list" id="progress-list"></div>
   </div>
 
-  <div class="section">
-    <div class="section-header"><h2>By LGA</h2></div>
-    <div class="lga-grid" id="lga-grid"></div>
+  <div class="card">
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent2), transparent);"></div>
+    <div class="card-label"><i class="fas fa-map" style="color:var(--gold);"></i>By LGA</div>
+    <div class="states-grid" id="lga-grid"></div>
   </div>
 </main>
 
-<footer class="site-footer">
-  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
-</footer>
+<footer class="site-footer">Adamawa VREK &middot; unofficial collation tool &middot; not an official INEC source</footer>
 
 <script src="assets/data.js"></script>
 <script>
   const results = getResults();
   const reported = LGAS.filter(function (lga) { return results[lga].reported; });
+  const pct = Math.round((reported.length / LGAS.length) * 100);
 
-  document.getElementById("reported-count").textContent = reported.length + " / " + LGAS.length;
-  document.getElementById("outstanding-count").textContent = (LGAS.length - reported.length) + " / " + LGAS.length;
-  document.getElementById("pct-complete").textContent = ((reported.length / LGAS.length) * 100).toFixed(0) + "%";
+  document.getElementById("stat-cards").innerHTML = `
+    <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-num mono">${reported.length} / ${LGAS.length}</div><div class="stat-label">LGAs reported</div></div>
+    <div class="stat-card"><div class="stat-icon grey"><i class="fas fa-hourglass-half"></i></div><div class="stat-num mono">${LGAS.length - reported.length} / ${LGAS.length}</div><div class="stat-label">Outstanding</div></div>
+    <div class="stat-card"><div class="stat-icon gold"><i class="fas fa-percent"></i></div><div class="stat-num mono">${pct}%</div><div class="stat-label">Percent complete</div></div>
+  `;
 
-  const grid = document.getElementById("lga-grid");
-  LGAS.forEach(function (lga) {
+  const zones = zoneProgress();
+  document.getElementById("progress-list").innerHTML = zones.map(z => `
+    <div class="prog-item">
+      <div class="prog-header"><span class="prog-name">${z.name}</span><span class="prog-pct mono">${z.reported}/${z.total} &middot; ${z.pct}%</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${z.pct}%"></div></div>
+    </div>
+  `).join("");
+
+  document.getElementById("lga-grid").innerHTML = LGAS.map(function (lga) {
     const entry = results[lga];
-    const chip = document.createElement("div");
-    chip.className = "lga-chip" + (entry.reported ? " reported" : "");
-    chip.innerHTML = '<span class="dot"></span><span>' + lga + '</span>';
-    grid.appendChild(chip);
-  });
+    return '<div class="state-chip' + (entry.reported ? ' reported' : '') + '"><div class="state-chip-name">' + lga + '</div><div class="state-chip-pct">' + (entry.reported ? 'Reported' : 'Pending') + '</div></div>';
+  }).join("");
 </script>
 </body>
 </html>

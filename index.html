@@ -3,107 +3,255 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>adamawa-vrek — Adamawa Vote Reconciliation</title>
+<title>Adamawa VREK · Governorship Results Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">
-    <strong>Adamawa VREK</strong>
-    <span>Vote Reconciliation — Adamawa State</span>
-  </div>
-  <nav>
-    <a href="index.html" class="active">Home</a>
-    <a href="dashboard.html">Dashboard</a>
+<header class="topbar">
+  <div class="logo"><div class="logo-mark">AV</div>Adamawa <span>VREK</span></div>
+  <nav class="nav-links">
+    <a href="index.html" class="active">Dashboard</a>
     <a href="state-results.html">State results</a>
-    <a href="lga-results.html">LGA results</a>
+    <a href="lga-results.html">LGAs</a>
     <a href="charts.html">Charts</a>
-    <a href="progress.html">Collation progress</a>
+    <a href="progress.html">Progress</a>
   </nav>
-  <div class="session">
-    <a href="admin-login.html" style="color:#d9e6f0;">Admin login</a>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="clock mono" id="clock">--:--:--</div>
+    <a href="admin-login.html" class="btn-login"><i class="fas fa-user-shield"></i> Admin / Agent</a>
   </div>
-</div>
+</header>
+
+<div class="ticker"><div class="ticker-inner" id="ticker"></div></div>
 
 <div class="disclaimer">
-  This site tracks the 2027 Adamawa State governorship race. No election has been held yet — every figure here is zero until an authorized user enters real, sourced results. This is not an official INEC source.
+  Tracking the 2027 Adamawa State governorship race. The election has not happened yet — every figure is zero until an authorized admin enters real, sourced results. Not an official INEC source.
 </div>
 
 <main>
-  <section class="section">
-    <h1>Adamawa State Governorship, 2027</h1>
-    <p class="lead">A collation dashboard for tracking results across Adamawa's 21 Local Government Areas as they are reported. Candidate data reflects publicly confirmed primary outcomes as of September 2026; parties without a confirmed nominee are marked pending.</p>
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-title">Adamawa State Governorship<br><span>Results Intelligence</span></div>
+        <div class="hero-sub">Collation across 21 LGAs · 3 senatorial zones · Adamawa VREK</div>
+      </div>
+      <div class="election-meta">
+        <div class="meta-item">
+          <div class="meta-label">Election date</div>
+          <div class="meta-value">2027 (TBD)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Last updated</div>
+          <div class="meta-value accent mono" id="last-updated">--:--</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Reporting</div>
+          <div class="meta-value gold mono" id="reporting-pct">0%</div>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <div class="stats">
-    <div class="stat">
-      <span class="stat-label">LGAs</span>
-      <span class="stat-value mono">21</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Confirmed candidates</span>
-      <span class="stat-value mono" id="confirmed-count">—</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">LGAs reported</span>
-      <span class="stat-value mono" id="reported-count">—</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Status</span>
-      <span class="stat-value">Pre-election</span>
+  <div class="leading-banner-wrap">
+    <div class="leading-banner">
+      <div class="leading-box" id="leading-box">
+        <div class="leading-crown" id="leading-crown"><i class="fas fa-crown"></i></div>
+        <div class="leading-info">
+          <div class="leading-eyebrow" id="leading-eyebrow"><i class="fas fa-signal" style="margin-right:5px; font-size:0.55rem;"></i>Currently leading — statewide</div>
+          <div class="leading-party-name" id="leading-name">No results yet</div>
+          <div class="leading-detail" id="leading-detail">Awaiting the first LGA result to be entered.</div>
+        </div>
+        <div class="leading-stats" id="leading-stats" style="display:none;">
+          <div class="leading-pct">
+            <div class="leading-pct-num mono" id="leading-pct-num">0%</div>
+            <div class="leading-pct-label">Vote share</div>
+          </div>
+          <div class="leading-margin">
+            <div class="leading-margin-num mono" id="leading-margin-num">—</div>
+            <div class="leading-margin-label">margin over 2nd</div>
+          </div>
+        </div>
+        <div class="leading-pulse" id="leading-pulse" style="display:none;"></div>
+      </div>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-header">
-      <h2>Candidates</h2>
-      <small>Sourced from public primary results, Sept 2026</small>
-    </div>
-    <div id="candidate-list"></div>
-  </div>
+  <div class="content">
+    <div class="stat-cards" id="stat-cards"></div>
 
-  <div class="section">
-    <div class="section-header">
-      <h2>Where to go</h2>
+    <div class="card party-card">
+      <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
+      <div class="card-label"><i class="fas fa-trophy" style="color:var(--gold);"></i>Party standings &middot; computed from entered results</div>
+      <table class="party-table">
+        <thead><tr><th>Party</th><th>Votes</th><th>Share</th><th>LGAs won</th></tr></thead>
+        <tbody id="party-tbody"></tbody>
+      </table>
     </div>
-    <ul style="margin:0; padding-left: 1.2rem; color: var(--ink-dim); line-height: 1.9;">
-      <li><a href="dashboard.html">Dashboard</a> — overview once logged in as an admin</li>
-      <li><a href="state-results.html">State results</a> — statewide standings and vote entry</li>
-      <li><a href="lga-results.html">LGA results</a> — drill into a single Local Government Area</li>
-      <li><a href="charts.html">Charts</a> — visual breakdown of the current standings</li>
-      <li><a href="progress.html">Collation progress</a> — which of the 21 LGAs have reported</li>
-    </ul>
+
+    <div class="card chart-card">
+      <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent2), transparent);"></div>
+      <div class="card-label"><i class="fas fa-chart-pie" style="color:var(--accent2);"></i>Vote distribution</div>
+      <div class="chart-wrap">
+        <canvas id="donutChart" width="170" height="170"></canvas>
+        <div class="chart-center"><div class="chart-center-num" id="chart-center-num">0%</div><div class="chart-center-label">reported</div></div>
+      </div>
+      <div class="chart-legend" id="chart-legend"></div>
+    </div>
+
+    <div class="card progress-card">
+      <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
+      <div class="card-label"><i class="fas fa-tasks" style="color:var(--accent);"></i>Reporting progress &middot; by senatorial zone</div>
+      <div class="progress-list" id="progress-list"></div>
+    </div>
+
+    <div class="card incident-card">
+      <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent2), transparent);"></div>
+      <div class="card-label"><i class="fas fa-shield-alt" style="color:var(--accent2);"></i>Transparency feed &middot; real activity on this device</div>
+      <div class="incident-list" id="incident-list"></div>
+    </div>
+
+    <div class="card states-card">
+      <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);"></div>
+      <div class="card-label"><i class="fas fa-map" style="color:var(--gold);"></i>All 21 LGAs &middot; reporting status</div>
+      <div class="states-grid" id="states-grid"></div>
+    </div>
   </div>
 </main>
 
 <footer class="site-footer">
-  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
+  Adamawa VREK &middot; unofficial collation tool &middot; MVP demo &middot; figures reflect only results entered on this device, not official INEC data
 </footer>
 
 <script src="assets/data.js"></script>
 <script>
-  document.getElementById("confirmed-count").textContent =
-    CANDIDATES.filter(function (c) { return c.status === "confirmed"; }).length + " / " + CANDIDATES.length;
+  function updateClock() {
+    const t = new Date().toLocaleTimeString("en-NG", { hour12: false });
+    document.getElementById("clock").textContent = t;
+    document.getElementById("last-updated").textContent = t;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
 
   const s = computeStandings();
-  document.getElementById("reported-count").textContent = s.reportedCount + " / " + s.totalLgas;
+  const reportingPct = s.totalLgas > 0 ? Math.round((s.reportedCount / s.totalLgas) * 100) : 0;
+  document.getElementById("reporting-pct").textContent = reportingPct + "%";
 
-  const list = document.getElementById("candidate-list");
-  CANDIDATES.forEach(function (c) {
-    const row = document.createElement("div");
-    row.className = "row";
-    row.innerHTML =
-      '<div><span class="candidate-name">' + c.name + '</span>' +
-      '<span class="party-pill">' + c.party + '</span>' +
-      (c.status === "pending" ? '<span class="pending-tag">PENDING</span>' : '') +
-      '</div>' +
-      '<div style="color:var(--ink-faint); font-size:0.82rem;">' + c.partyFull + (c.runningMate ? ' &middot; running mate: ' + c.runningMate : '') + '</div>' +
-      '<div></div><div></div>';
-    list.appendChild(row);
+  // Leading banner — only shows a leader once real votes exist.
+  const leader = s.standings[0];
+  const runnerUp = s.standings[1];
+  if (s.grandTotal > 0 && leader.votes > 0) {
+    const color = PARTY_COLORS[leader.id] || "var(--muted)";
+    const box = document.getElementById("leading-box");
+    box.classList.add("has-leader");
+    box.style.setProperty("--leader-color", color);
+    box.style.setProperty("--leader-tint", color + "22");
+    box.style.setProperty("--leader-border", color + "55");
+    document.getElementById("leading-name").textContent = leader.party;
+    document.getElementById("leading-detail").textContent =
+      leader.name + " · " + leader.votes.toLocaleString() + " votes counted across " + s.reportedCount + " of " + s.totalLgas + " LGAs";
+    document.getElementById("leading-pct-num").textContent = leader.pct.toFixed(1) + "%";
+    document.getElementById("leading-margin-num").textContent =
+      runnerUp ? "+" + (leader.pct - runnerUp.pct).toFixed(1) + "%" : "—";
+    document.getElementById("leading-stats").style.display = "flex";
+    document.getElementById("leading-pulse").style.display = "block";
+  }
+
+  // Stat cards
+  const statCards = [
+    { icon: "fa-map-marker-alt", cls: "grey", value: "21", label: "Local Government Areas", note: "Adamawa State" },
+    { icon: "fa-user-check", cls: "blue", value: CANDIDATES.filter(c => c.status === "confirmed").length + " / " + CANDIDATES.length, label: "Confirmed candidates", note: "As of Sept 2026" },
+    { icon: "fa-check-circle", cls: "green", value: s.reportedCount + " / " + s.totalLgas, label: "LGAs reported", note: reportingPct + "% complete" },
+    { icon: "fa-vote-yea", cls: "gold", value: s.grandTotal.toLocaleString(), label: "Total votes counted", note: s.grandTotal === 0 ? "No results entered" : "Locally entered" }
+  ];
+  document.getElementById("stat-cards").innerHTML = statCards.map(c => `
+    <div class="stat-card">
+      <div class="stat-icon ${c.cls}"><i class="fas ${c.icon}"></i></div>
+      <div class="stat-num mono">${c.value}</div>
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-note">${c.note}</div>
+    </div>
+  `).join("");
+
+  // Party table
+  const max = Math.max(1, s.standings[0].votes);
+  document.getElementById("party-tbody").innerHTML = s.standings.map(c => `
+    <tr>
+      <td><div class="party-name-cell"><div class="party-dot" style="background:${PARTY_COLORS[c.id] || 'var(--pending)'}"></div>${c.party}${c.status === "pending" ? '<span class="pending-badge">PENDING</span>' : ''}</div></td>
+      <td><span class="votes-num">${c.votes.toLocaleString()}</span></td>
+      <td><div class="bar-wrap"><div class="mini-bar"><div class="mini-bar-fill" style="background:${PARTY_COLORS[c.id] || 'var(--pending)'}; width:${((c.votes / max) * 100).toFixed(1)}%"></div></div><span class="pct-label">${c.pct.toFixed(1)}%</span></div></td>
+      <td><span class="votes-num">0</span></td>
+    </tr>
+  `).join("");
+
+  // Donut chart
+  document.getElementById("chart-center-num").textContent = reportingPct + "%";
+  const ctx = document.getElementById("donutChart").getContext("2d");
+  const hasVotes = s.grandTotal > 0;
+  new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: s.standings.map(c => c.party),
+      datasets: [{
+        data: hasVotes ? s.standings.map(c => c.votes) : s.standings.map(() => 1),
+        backgroundColor: hasVotes ? s.standings.map(c => PARTY_COLORS[c.id] || "#94a3b8") : s.standings.map(() => "#e2e8f0"),
+        borderWidth: 2, borderColor: "#ffffff"
+      }]
+    },
+    options: {
+      cutout: "68%",
+      plugins: { legend: { display: false }, tooltip: { enabled: hasVotes } },
+      animation: { duration: 900 }
+    }
   });
+  document.getElementById("chart-legend").innerHTML = s.standings.map(c => `
+    <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:${PARTY_COLORS[c.id] || '#94a3b8'}"></div><span style="font-size:0.78rem">${c.party}</span></div><span class="legend-pct">${c.pct.toFixed(1)}%</span></div>
+  `).join("");
+
+  // Progress by senatorial zone
+  const zones = zoneProgress();
+  document.getElementById("progress-list").innerHTML = zones.map(z => `
+    <div class="prog-item">
+      <div class="prog-header"><span class="prog-name">${z.name}</span><span class="prog-pct mono">${z.reported}/${z.total}</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${z.pct}%"></div></div>
+    </div>
+  `).join("");
+
+  // Transparency feed — real activity only, no scripted incidents
+  const activity = getActivity();
+  const incList = document.getElementById("incident-list");
+  if (activity.length === 0) {
+    incList.innerHTML = '<p class="empty-note">No activity yet. Entries will appear here as an admin saves LGA results.</p>';
+  } else {
+    incList.innerHTML = activity.slice(0, 6).map(a => `
+      <div class="incident-item">
+        <div class="inc-icon ${a.type}"><i class="fas fa-circle-check"></i></div>
+        <div class="inc-body"><div class="inc-title">${a.title}</div><div class="inc-meta">${new Date(a.ts).toLocaleString()}</div></div>
+      </div>
+    `).join("");
+  }
+
+  // LGA grid
+  const results = getResults();
+  document.getElementById("states-grid").innerHTML = LGAS.map(lga => {
+    const r = results[lga];
+    return `<div class="state-chip ${r.reported ? 'reported' : ''}"><div class="state-chip-name">${lga}</div><div class="state-chip-pct">${r.reported ? 'Reported' : 'Pending'}</div></div>`;
+  }).join("");
+
+  // Ticker — built only from real computed numbers
+  const tickItems = [
+    ...s.standings.map(c => `<span class="tick-item"><span class="tick-party">${c.party}</span> <span class="tick-votes">${c.votes.toLocaleString()}</span> votes &middot; ${c.pct.toFixed(1)}%</span>`),
+    `<span class="tick-item">${s.reportedCount} of ${s.totalLgas} LGAs reported</span>`,
+    `<span class="tick-item">${s.grandTotal.toLocaleString()} total votes counted</span>`,
+    `<span class="tick-item">Data entered locally &middot; not an official INEC feed</span>`
+  ];
+  const doubled = [...tickItems, ...tickItems];
+  document.getElementById("ticker").innerHTML = doubled.join("");
 </script>
 </body>
 </html>

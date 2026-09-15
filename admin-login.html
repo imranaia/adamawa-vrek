@@ -3,38 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login — Adamawa VREK</title>
+<title>Admin Login · Adamawa VREK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">
-    <strong>Adamawa VREK</strong>
-    <span>Vote Reconciliation — Adamawa State</span>
-  </div>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="dashboard.html">Dashboard</a>
+<header class="topbar">
+  <div class="logo"><div class="logo-mark">AV</div>Adamawa <span>VREK</span></div>
+  <nav class="nav-links">
+    <a href="index.html">Dashboard</a>
     <a href="state-results.html">State results</a>
-    <a href="lga-results.html">LGA results</a>
+    <a href="lga-results.html">LGAs</a>
     <a href="charts.html">Charts</a>
-    <a href="progress.html">Collation progress</a>
+    <a href="progress.html">Progress</a>
   </nav>
-</div>
+</header>
 
 <div class="disclaimer">
   This login is a client-side demo gate only — it is not real security. Do not use this pattern to protect anything sensitive.
 </div>
 
-<main style="max-width:420px;">
-  <div class="section">
-    <h1>Admin login</h1>
-    <p class="lead">Sign in to enter or edit LGA-level results.</p>
+<main class="simple" style="max-width:420px;">
+  <div class="card">
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
+    <h1 class="page-title"><i class="fas fa-user-shield" style="color:var(--accent); margin-right:6px;"></i>Admin login</h1>
+    <p class="lead" style="margin-top:0.4rem;">Sign in to enter or edit LGA-level results.</p>
 
-    <form id="login-form" style="display:flex; flex-direction:column; gap:0.9rem;">
+    <form id="login-form" style="display:flex; flex-direction:column; gap:0.9rem; margin-top:1.1rem;">
       <div class="field">
         <label for="username">Username</label>
         <input id="username" type="text" autocomplete="username" required>
@@ -47,15 +45,11 @@
       <button type="submit" class="primary">Sign in</button>
     </form>
 
-    <p style="color:var(--ink-faint); font-size:0.78rem;">
-      Demo credentials: <span class="mono">admin</span> / <span class="mono">adamawa2027</span>
-    </p>
+    <p class="stat-note" style="margin-top:1rem;">Demo credentials: <span class="mono">admin</span> / <span class="mono">adamawa2027</span></p>
   </div>
 </main>
 
-<footer class="site-footer">
-  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
-</footer>
+<footer class="site-footer">Adamawa VREK &middot; unofficial collation tool &middot; not an official INEC source</footer>
 
 <script src="assets/auth.js"></script>
 <script>

@@ -62,7 +62,46 @@ const CANDIDATES = [
   }
 ];
 
+// Real senatorial zone groupings for Adamawa State's 21 LGAs.
+const ZONES = {
+  "Adamawa North": ["Madagali", "Michika", "Mubi North", "Mubi South", "Maiha", "Hong", "Gombi", "Guyuk"],
+  "Adamawa Central": ["Yola North", "Yola South", "Gireri", "Song", "Fufure", "Demsa", "Numan", "Lamurde", "Shelleng"],
+  "Adamawa South": ["Ganye", "Jada", "Mayo-Belwa", "Toungo"]
+};
+
+const PARTY_COLORS = {
+  apc: "#0080FF",
+  adc: "#FF6B00",
+  pdp: "#E80020",
+  lp: "#228B22",
+  nnpp: "#8B5CF6"
+};
+
 const STORAGE_KEY = "vrek_adamawa_results_v1";
+const ACTIVITY_KEY = "vrek_adamawa_activity_v1";
+
+function getActivity() {
+  try {
+    return JSON.parse(localStorage.getItem(ACTIVITY_KEY)) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function addActivity(type, title) {
+  const log = getActivity();
+  log.unshift({ type: type, title: title, ts: new Date().toISOString() });
+  localStorage.setItem(ACTIVITY_KEY, JSON.stringify(log.slice(0, 20)));
+}
+
+function zoneProgress() {
+  const results = getResults();
+  return Object.keys(ZONES).map(function (zone) {
+    const lgas = ZONES[zone];
+    const reported = lgas.filter(function (l) { return results[l] && results[l].reported; }).length;
+    return { name: zone, reported: reported, total: lgas.length, pct: Math.round((reported / lgas.length) * 100) };
+  });
+}
 
 function defaultResults() {
   const results = {};
@@ -92,12 +131,14 @@ function saveResults(results) {
 
 function setLgaResult(lgaName, votesByCandidateId) {
   const results = getResults();
+  const wasReported = results[lgaName] && results[lgaName].reported;
   results[lgaName] = {
     reported: true,
     votes: votesByCandidateId,
     updatedAt: new Date().toISOString()
   };
   saveResults(results);
+  addActivity("ok", (wasReported ? "Result updated — " : "Result entered — ") + lgaName);
   return results;
 }
 

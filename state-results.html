@@ -3,52 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>State Results — Adamawa VREK</title>
+<title>State Results · Adamawa VREK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">
-    <strong>Adamawa VREK</strong>
-    <span>Vote Reconciliation — Adamawa State</span>
-  </div>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="dashboard.html">Dashboard</a>
+<header class="topbar">
+  <div class="logo"><div class="logo-mark">AV</div>Adamawa <span>VREK</span></div>
+  <nav class="nav-links">
+    <a href="index.html">Dashboard</a>
     <a href="state-results.html" class="active">State results</a>
-    <a href="lga-results.html">LGA results</a>
+    <a href="lga-results.html">LGAs</a>
     <a href="charts.html">Charts</a>
-    <a href="progress.html">Collation progress</a>
+    <a href="progress.html">Progress</a>
   </nav>
-  <div class="session" id="session-box"></div>
-</div>
+  <div class="topbar-right" id="session-box"></div>
+</header>
 
 <div class="disclaimer">
   Statewide totals are the sum of whatever LGA-level figures have been entered below. Nothing here is an official INEC figure.
 </div>
 
-<main>
-  <div class="section">
-    <h1>Statewide results</h1>
+<main class="simple">
+  <div>
+    <h1 class="page-title">Statewide results</h1>
     <p class="lead">Aggregated across all 21 LGAs. Standings update immediately as each LGA is entered — the order is never fixed in advance.</p>
   </div>
 
-  <div class="section">
-    <div class="section-header">
-      <h2>Standings</h2>
-      <small id="totals-line"></small>
-    </div>
+  <div class="card">
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
+    <div class="card-label" id="totals-line"><i class="fas fa-trophy" style="color:var(--gold);"></i>Standings</div>
     <div id="standings-list"></div>
   </div>
 
-  <div class="section" id="entry-section" hidden>
-    <div class="section-header">
-      <h2>Enter LGA result</h2>
-      <small>Admin only — figures should come from a real, sourced report</small>
-    </div>
+  <div class="card" id="entry-section" hidden>
+    <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent2), transparent);"></div>
+    <div class="card-label"><i class="fas fa-pen-to-square" style="color:var(--accent2);"></i>Enter LGA result &middot; admin only</div>
     <form id="entry-form" style="display:flex; flex-direction:column; gap:1rem;">
       <div class="field">
         <label for="lga-select">Local Government Area</label>
@@ -63,35 +56,35 @@
     </form>
   </div>
 
-  <div class="section" id="locked-notice">
-    <p class="lead"><a href="admin-login.html">Log in as admin</a> to enter or edit LGA results.</p>
+  <div class="card" id="locked-notice">
+    <p class="lead"><a href="admin-login.html" style="color:var(--accent2);">Log in as admin</a> to enter or edit LGA results.</p>
   </div>
 </main>
 
-<footer class="site-footer">
-  Adamawa VREK is an unofficial collation tool. Official results are published by the Independent National Electoral Commission (INEC).
-</footer>
+<footer class="site-footer">Adamawa VREK &middot; unofficial collation tool &middot; not an official INEC source</footer>
 
 <script src="assets/auth.js"></script>
 <script src="assets/data.js"></script>
 <script>
   const sessionBox = document.getElementById("session-box");
   if (isLoggedIn()) {
-    sessionBox.innerHTML = 'Signed in as admin &nbsp; <button id="logout-btn">Log out</button>';
-    document.getElementById("logout-btn").addEventListener("click", function () {
+    sessionBox.innerHTML = '<span class="clock mono">Signed in as admin</span> <a href="#" class="btn-login" id="logout-btn"><i class="fas fa-right-from-bracket"></i> Log out</a>';
+    document.getElementById("logout-btn").addEventListener("click", function (e) {
+      e.preventDefault();
       logout();
       window.location.reload();
     });
     document.getElementById("entry-section").hidden = false;
     document.getElementById("locked-notice").hidden = true;
   } else {
-    sessionBox.innerHTML = '<a href="admin-login.html" style="color:#d9e6f0;">Admin login</a>';
+    sessionBox.innerHTML = '<a href="admin-login.html" class="btn-login"><i class="fas fa-user-shield"></i> Admin login</a>';
   }
 
   function renderStandings() {
     const data = computeStandings();
-    document.getElementById("totals-line").textContent =
-      data.reportedCount + " / " + data.totalLgas + " LGAs reported, " + data.grandTotal.toLocaleString() + " total votes";
+    document.getElementById("totals-line").innerHTML =
+      '<i class="fas fa-trophy" style="color:var(--gold);"></i>Standings &middot; ' +
+      data.reportedCount + ' / ' + data.totalLgas + ' LGAs reported, ' + data.grandTotal.toLocaleString() + ' total votes';
 
     const list = document.getElementById("standings-list");
     list.innerHTML = "";
@@ -100,9 +93,9 @@
       row.className = "row";
       row.innerHTML =
         '<div><span class="candidate-name">' + (i + 1) + '. ' + c.name + '</span>' +
-        '<span class="party-pill">' + c.party + '</span>' +
-        (c.status === "pending" ? '<span class="pending-tag">PENDING</span>' : '') + '</div>' +
-        '<div class="bar-track"><div class="bar-fill" style="width:' + c.pct.toFixed(1) + '%"></div></div>' +
+        '<span class="pending-badge" style="border-color:var(--border2); color:var(--muted);">' + c.party + '</span>' +
+        (c.status === "pending" ? '<span class="pending-badge">PENDING</span>' : '') + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + c.pct.toFixed(1) + '%; background:' + (PARTY_COLORS[c.id] || 'var(--pending)') + '"></div></div>' +
         '<div class="votes">' + c.votes.toLocaleString() + ' votes</div>' +
         '<div class="pct">' + c.pct.toFixed(1) + '%</div>';
       list.appendChild(row);
@@ -151,7 +144,7 @@
         votes[c.id] = Number(document.getElementById("votes-" + c.id).value) || 0;
       });
       setLgaResult(lga, votes);
-      document.getElementById("save-msg").style.color = "#3f8f52";
+      document.getElementById("save-msg").style.color = "var(--accent)";
       document.getElementById("save-msg").textContent = "Saved " + lga + ".";
       renderStandings();
     });

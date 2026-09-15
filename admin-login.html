@@ -8,6 +8,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="assets/style.css">
+<style>
+  .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .role-tab { padding: 0.9rem 0.8rem; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; text-align: left; }
+  .role-tab:hover { border-color: var(--border2); }
+  .role-tab.active { background: rgba(0, 168, 107, 0.07); border-color: rgba(0, 168, 107, 0.35); }
+  .role-icon-wrap { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-bottom: 0.5rem; }
+  .role-name { font-size: 0.85rem; font-weight: 600; }
+  .role-tab.active .role-name { color: var(--accent); }
+  .role-scope { font-family: "IBM Plex Mono", monospace; font-size: 0.62rem; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  @media (max-width: 560px) { .role-grid { grid-template-columns: 1fr; } }
+</style>
 </head>
 <body>
 
@@ -30,31 +41,43 @@
   This login is a client-side demo gate only — it is not real security. Do not use this pattern to protect anything sensitive.
 </div>
 
-<main class="simple" style="max-width:420px;">
+<main class="simple" style="max-width:480px;">
   <div class="card">
     <div class="card-accent-line" style="background: linear-gradient(90deg, var(--accent), transparent);"></div>
-    <h1 class="page-title"><i class="fas fa-user-shield" style="color:var(--accent); margin-right:6px;"></i>Admin login</h1>
-    <p class="lead" style="margin-top:0.4rem;">Sign in to enter or edit LGA-level results.</p>
+    <h1 class="page-title"><i class="fas fa-user-shield" style="color:var(--accent); margin-right:6px;"></i>Officer sign-in</h1>
+    <p class="lead" style="margin-top:0.4rem;">Select a role, then sign in. Each role sees a different level of access on the results pages.</p>
 
-    <form id="login-form" style="display:flex; flex-direction:column; gap:0.9rem; margin-top:1.1rem;">
+    <div class="card-label" style="margin-top:1.2rem;"><i class="fas fa-id-badge"></i>Select your role</div>
+    <div class="role-grid" id="role-grid"></div>
+
+    <form id="login-form" style="display:flex; flex-direction:column; gap:0.9rem; margin-top:1.2rem;">
       <div class="field">
-        <label for="username">Username</label>
-        <input id="username" type="text" autocomplete="username" required>
+        <label for="name">Officer name</label>
+        <input id="name" type="text" placeholder="e.g. Musa Aliyu" autocomplete="name">
+      </div>
+      <div class="field" id="lga-field" hidden>
+        <label for="lga-select">Assigned LGA</label>
+        <select id="lga-select"></select>
       </div>
       <div class="field">
-        <label for="password">Password</label>
+        <label for="password">Role password</label>
         <input id="password" type="password" autocomplete="current-password" required>
       </div>
       <p class="error-text" id="error-text"></p>
       <button type="submit" class="primary">Sign in</button>
     </form>
 
-    <p class="stat-note" style="margin-top:1rem;">Demo credentials: <span class="mono">admin</span> / <span class="mono">adamawa2027</span></p>
+    <p class="stat-note" style="margin-top:1rem; line-height:1.6;">
+      Demo passwords &middot; Admin: <span class="mono">adamawa2027</span> &middot;
+      State Officer: <span class="mono">state2027</span> &middot;
+      LGA Officer: <span class="mono">lga2027</span> (any LGA)
+    </p>
   </div>
 </main>
 
 <footer class="site-footer">Adamawa VREK &middot; unofficial collation tool &middot; not an official INEC source</footer>
 
+<script src="assets/data.js"></script>
 <script src="assets/auth.js"></script>
 <script>
   setInterval(function () {
@@ -62,14 +85,46 @@
   }, 1000);
   document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-NG", { hour12: false });
 
+  let selectedRole = "admin";
+
+  document.getElementById("role-grid").innerHTML = ROLES.map(function (r, i) {
+    return '<div class="role-tab' + (i === 0 ? ' active' : '') + '" data-role="' + r.id + '">' +
+      '<div class="role-icon-wrap" style="background:' + r.color + '22; color:' + r.color + '"><i class="fas ' + r.icon + '"></i></div>' +
+      '<div class="role-name">' + r.name + '</div>' +
+      '<div class="role-scope">' + r.scope + '</div>' +
+      '</div>';
+  }).join("");
+
+  const lgaSelect = document.getElementById("lga-select");
+  LGAS.forEach(function (lga) {
+    const opt = document.createElement("option");
+    opt.value = lga;
+    opt.textContent = lga;
+    lgaSelect.appendChild(opt);
+  });
+
+  function selectRole(roleId) {
+    selectedRole = roleId;
+    document.querySelectorAll(".role-tab").forEach(function (t) {
+      t.classList.toggle("active", t.dataset.role === roleId);
+    });
+    document.getElementById("lga-field").hidden = roleId !== "lga";
+  }
+
+  document.querySelectorAll(".role-tab").forEach(function (tab) {
+    tab.addEventListener("click", function () { selectRole(tab.dataset.role); });
+  });
+
   document.getElementById("login-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    const u = document.getElementById("username").value.trim();
-    const p = document.getElementById("password").value;
-    if (login(u, p)) {
+    const name = document.getElementById("name").value;
+    const password = document.getElementById("password").value;
+    const lga = selectedRole === "lga" ? lgaSelect.value : null;
+
+    if (login(selectedRole, name, password, lga)) {
       window.location.href = "dashboard.html";
     } else {
-      document.getElementById("error-text").textContent = "Incorrect username or password.";
+      document.getElementById("error-text").textContent = "Incorrect password for the selected role.";
     }
   });
 </script>

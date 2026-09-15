@@ -129,16 +129,17 @@ function saveResults(results) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
 }
 
-function setLgaResult(lgaName, votesByCandidateId) {
+function setLgaResult(lgaName, votesByCandidateId, actor) {
   const results = getResults();
   const wasReported = results[lgaName] && results[lgaName].reported;
   results[lgaName] = {
     reported: true,
     votes: votesByCandidateId,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    enteredBy: actor || null
   };
   saveResults(results);
-  addActivity("ok", (wasReported ? "Result updated — " : "Result entered — ") + lgaName);
+  addActivity("ok", (wasReported ? "Result updated — " : "Result entered — ") + lgaName + (actor ? " by " + actor : ""));
   return results;
 }
 

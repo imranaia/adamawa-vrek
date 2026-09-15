@@ -12,7 +12,7 @@
  */
 
 const LGAS = [
-  "Demsa", "Fufure", "Ganye", "Gireri", "Gombi", "Guyuk", "Hong", "Jada",
+  "Demsa", "Fufure", "Ganye", "Girei", "Gombi", "Guyuk", "Hong", "Jada",
   "Lamurde", "Madagali", "Maiha", "Mayo-Belwa", "Michika", "Mubi North",
   "Mubi South", "Numan", "Shelleng", "Song", "Toungo", "Yola North",
   "Yola South"
@@ -65,7 +65,7 @@ const CANDIDATES = [
 // Real senatorial zone groupings for Adamawa State's 21 LGAs.
 const ZONES = {
   "Adamawa North": ["Madagali", "Michika", "Mubi North", "Mubi South", "Maiha", "Hong", "Gombi", "Guyuk"],
-  "Adamawa Central": ["Yola North", "Yola South", "Gireri", "Song", "Fufure", "Demsa", "Numan", "Lamurde", "Shelleng"],
+  "Adamawa Central": ["Yola North", "Yola South", "Girei", "Song", "Fufure", "Demsa", "Numan", "Lamurde", "Shelleng"],
   "Adamawa South": ["Ganye", "Jada", "Mayo-Belwa", "Toungo"]
 };
 

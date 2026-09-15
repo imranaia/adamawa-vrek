@@ -52,12 +52,10 @@
 
     <form id="login-form" style="display:flex; flex-direction:column; gap:0.9rem; margin-top:1.2rem;">
       <div class="field">
-        <label for="name">Officer name</label>
-        <input id="name" type="text" placeholder="e.g. Musa Aliyu" autocomplete="name">
-      </div>
-      <div class="field" id="lga-field" hidden>
-        <label for="lga-select">Assigned LGA</label>
-        <select id="lga-select"></select>
+        <label for="name" id="name-label">Officer name</label>
+        <input id="name" type="text" placeholder="e.g. Musa Aliyu" autocomplete="name" list="lga-hints">
+        <datalist id="lga-hints"></datalist>
+        <span class="stat-note" id="name-hint" hidden>Your LGA is your identity here — no separate LGA picker. Type your LGA's name (autocomplete will suggest it) and the system assigns you to it automatically.</span>
       </div>
       <div class="field">
         <label for="password">Role password</label>
@@ -70,7 +68,7 @@
     <p class="stat-note" style="margin-top:1rem; line-height:1.6;">
       Demo passwords &middot; Admin: <span class="mono">adamawa2027</span> &middot;
       State Officer: <span class="mono">state2027</span> &middot;
-      LGA Officer: <span class="mono">lga2027</span> (any LGA)
+      LGA Officer: <span class="mono">lga2027</span>
     </p>
   </div>
 </main>
@@ -95,20 +93,28 @@
       '</div>';
   }).join("");
 
-  const lgaSelect = document.getElementById("lga-select");
-  LGAS.forEach(function (lga) {
-    const opt = document.createElement("option");
-    opt.value = lga;
-    opt.textContent = lga;
-    lgaSelect.appendChild(opt);
-  });
+  document.getElementById("lga-hints").innerHTML = LGAS.map(function (lga) {
+    return '<option value="' + lga + '">';
+  }).join("");
+
+  const nameInput = document.getElementById("name");
+  const nameLabel = document.getElementById("name-label");
+  const nameHint = document.getElementById("name-hint");
 
   function selectRole(roleId) {
     selectedRole = roleId;
     document.querySelectorAll(".role-tab").forEach(function (t) {
       t.classList.toggle("active", t.dataset.role === roleId);
     });
-    document.getElementById("lga-field").hidden = roleId !== "lga";
+    if (roleId === "lga") {
+      nameLabel.textContent = "Your LGA";
+      nameInput.placeholder = "e.g. Yola North";
+      nameHint.hidden = false;
+    } else {
+      nameLabel.textContent = "Officer name";
+      nameInput.placeholder = "e.g. Musa Aliyu";
+      nameHint.hidden = true;
+    }
   }
 
   document.querySelectorAll(".role-tab").forEach(function (tab) {
@@ -117,14 +123,15 @@
 
   document.getElementById("login-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    const name = document.getElementById("name").value;
+    const name = nameInput.value;
     const password = document.getElementById("password").value;
-    const lga = selectedRole === "lga" ? lgaSelect.value : null;
 
-    if (login(selectedRole, name, password, lga)) {
+    if (login(selectedRole, name, password)) {
       window.location.href = "dashboard.html";
     } else {
-      document.getElementById("error-text").textContent = "Incorrect password for the selected role.";
+      document.getElementById("error-text").textContent = selectedRole === "lga"
+        ? "That LGA name wasn't recognized, or the password is wrong."
+        : "Incorrect password for the selected role.";
     }
   });
 </script>

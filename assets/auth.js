@@ -21,6 +21,17 @@ const ROLE_PASSWORDS = { admin: "adamawa2027", state: "state2027", lga: "lga2027
 
 const SESSION_KEY = "vrek_admin_session_v2";
 
+// An LGA Officer's username IS their identity — it determines their LGA.
+// No separate "which LGA are you" picker: the system looks it up.
+function lgaSlug(name) {
+  return name.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+function findLgaByUsername(username) {
+  const slug = lgaSlug(username || "");
+  return LGAS.find(function (lga) { return lgaSlug(lga) === slug; }) || null;
+}
+
 function getSession() {
   try {
     return JSON.parse(sessionStorage.getItem(SESSION_KEY));
@@ -33,16 +44,24 @@ function isLoggedIn() {
   return !!getSession();
 }
 
-function login(roleId, name, password, lga) {
+function login(roleId, identifier, password) {
   if (!ROLE_PASSWORDS[roleId] || password !== ROLE_PASSWORDS[roleId]) return false;
-  if (roleId === "lga" && !lga) return false;
 
   const role = ROLES.find(function (r) { return r.id === roleId; });
+  let name = (identifier || "").trim() || role.name;
+  let lga = null;
+
+  if (roleId === "lga") {
+    lga = findLgaByUsername(identifier);
+    if (!lga) return false;
+    name = lga + " Officer";
+  }
+
   const session = {
     role: roleId,
     roleName: role.name,
-    name: (name || "").trim() || role.name,
-    lga: roleId === "lga" ? lga : null,
+    name: name,
+    lga: lga,
     since: new Date().toISOString()
   };
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));

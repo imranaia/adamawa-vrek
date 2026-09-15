@@ -26,6 +26,11 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Author rules like `.field { display: flex }` are equal-specificity to the
+   browser's own [hidden] rule and win the cascade, silently un-hiding
+   elements toggled via the `hidden` attribute. Force it to always win. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {
